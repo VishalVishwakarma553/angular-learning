@@ -1,0 +1,377 @@
+<div class="min-h-screen bg-[#090d16] text-slate-100 antialiased selection:bg-indigo-500 selection:text-white pb-16">
+  <!-- Glowing ambient background spots -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+    <div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-indigo-500/15 blur-[120px] rounded-full"></div>
+    <div class="absolute top-1/3 -right-20 w-[450px] h-[300px] bg-purple-500/10 blur-[130px] rounded-full"></div>
+    <div class="absolute bottom-10 -left-20 w-[400px] h-[300px] bg-emerald-500/10 blur-[130px] rounded-full"></div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14">
+    <!-- Top Bar with Angular Badge -->
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-8 border-b border-slate-800/80">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-red-500/10 via-pink-500/10 to-indigo-500/10 text-pink-400 border border-pink-500/20 mb-3">
+          <span class="inline-block w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
+          Modern Angular 19+ &bull; Standalone &amp; Signals
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+          PulseTask
+        </h1>
+        <p class="text-sm text-slate-400 mt-1">
+          Interactive Habit &amp; Task Tracker powered by reactive signals
+        </p>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button
+          (click)="resetDemo()"
+          class="px-3.5 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/70 rounded-xl transition duration-150 shadow-sm"
+        >
+          Reset Demo Data
+        </button>
+        @if (completedCount() > 0) {
+          <button
+            (click)="clearCompleted()"
+            class="px-3.5 py-1.5 text-xs font-medium text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/40 rounded-xl transition duration-150"
+          >
+            Clear Completed ({{ completedCount() }})
+          </button>
+        }
+      </div>
+    </header>
+
+    <!-- Stats & Progress Card -->
+    <section class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+      <!-- Total Tasks Card -->
+      <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md shadow-xl flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Tasks</p>
+          <p class="text-2xl font-bold text-white mt-1">{{ totalCount() }}</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm">
+          #
+        </div>
+      </div>
+
+      <!-- Active Tasks Card -->
+      <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md shadow-xl flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">In Progress</p>
+          <p class="text-2xl font-bold text-amber-400 mt-1">{{ activeCount() }}</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-sm">
+          &#9881;
+        </div>
+      </div>
+
+      <!-- Completed Tasks Card -->
+      <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md shadow-xl flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Completed</p>
+          <p class="text-2xl font-bold text-emerald-400 mt-1">{{ completedCount() }}</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">
+          &#10003;
+        </div>
+      </div>
+
+      <!-- Completion Rate Bar -->
+      <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md shadow-xl flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Progress</p>
+          <span class="text-xs font-bold text-indigo-400">{{ completionRate() }}%</span>
+        </div>
+        <div class="w-full bg-slate-800/90 h-2.5 rounded-full overflow-hidden mt-3">
+          <div
+            class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 transition-all duration-500 ease-out rounded-full"
+            [style.width.%]="completionRate()"
+          ></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Create Task Form -->
+    <section class="mt-8 p-5 sm:p-6 rounded-2xl bg-slate-900/80 border border-slate-800/90 backdrop-blur-xl shadow-2xl">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400">Add New Item</span>
+        <span class="text-xs text-slate-500">&bull; Bound with Signals &amp; ngModel</span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="relative flex-1">
+          <input
+            #taskInput
+            type="text"
+            [value]="newTitle()"
+            (input)="newTitle.set(taskInput.value)"
+            (keyup.enter)="addTask()"
+            placeholder="What do you need to accomplish today?"
+            class="w-full bg-slate-950/80 border border-slate-800 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 text-slate-100 placeholder-slate-500 rounded-xl px-4 py-3 text-sm outline-none transition duration-150"
+          />
+        </div>
+
+        <button
+          (click)="addTask()"
+          [disabled]="!newTitle().trim()"
+          class="px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold shadow-lg shadow-indigo-600/25 transition duration-150 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+        >
+          <span>+ Add Task</span>
+        </button>
+      </div>
+
+      <!-- Category & Priority Options -->
+      <div class="mt-4 pt-4 border-t border-slate-800/60 flex flex-wrap items-center justify-between gap-4 text-xs">
+        <!-- Categories -->
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400 font-medium">Category:</span>
+          <div class="flex gap-1.5">
+            @for (cat of categories; track cat) {
+              <button
+                type="button"
+                (click)="selectedCategory.set(cat)"
+                class="px-2.5 py-1 rounded-lg border transition-all"
+                [class.bg-indigo-600]="selectedCategory() === cat"
+                [class.text-white]="selectedCategory() === cat"
+                [class.border-indigo-500]="selectedCategory() === cat"
+                [class.bg-slate-800]="selectedCategory() !== cat"
+                [class.text-slate-400]="selectedCategory() !== cat"
+                [class.border-slate-700]="selectedCategory() !== cat"
+              >
+                {{ cat }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Priority Selector -->
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400 font-medium">Priority:</span>
+          <div class="flex gap-1.5">
+            <button
+              type="button"
+              (click)="selectedPriority.set('low')"
+              class="px-2.5 py-1 rounded-lg border flex items-center gap-1.5 transition-all"
+              [class.bg-emerald-950]="selectedPriority() === 'low'"
+              [class.text-emerald-300]="selectedPriority() === 'low'"
+              [class.border-emerald-700]="selectedPriority() === 'low'"
+              [class.bg-slate-800]="selectedPriority() !== 'low'"
+              [class.text-slate-400]="selectedPriority() !== 'low'"
+              [class.border-slate-700]="selectedPriority() !== 'low'"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+              Low
+            </button>
+
+            <button
+              type="button"
+              (click)="selectedPriority.set('medium')"
+              class="px-2.5 py-1 rounded-lg border flex items-center gap-1.5 transition-all"
+              [class.bg-amber-950]="selectedPriority() === 'medium'"
+              [class.text-amber-300]="selectedPriority() === 'medium'"
+              [class.border-amber-700]="selectedPriority() === 'medium'"
+              [class.bg-slate-800]="selectedPriority() !== 'medium'"
+              [class.text-slate-400]="selectedPriority() !== 'medium'"
+              [class.border-slate-700]="selectedPriority() !== 'medium'"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              Med
+            </button>
+
+            <button
+              type="button"
+              (click)="selectedPriority.set('high')"
+              class="px-2.5 py-1 rounded-lg border flex items-center gap-1.5 transition-all"
+              [class.bg-rose-950]="selectedPriority() === 'high'"
+              [class.text-rose-300]="selectedPriority() === 'high'"
+              [class.border-rose-700]="selectedPriority() === 'high'"
+              [class.bg-slate-800]="selectedPriority() !== 'high'"
+              [class.text-slate-400]="selectedPriority() !== 'high'"
+              [class.border-slate-700]="selectedPriority() !== 'high'"
+            >
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+              High
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter & Search Controls -->
+    <section class="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <!-- Search -->
+      <div class="relative flex-1">
+        <input
+          #searchInput
+          type="text"
+          [value]="searchQuery()"
+          (input)="searchQuery.set(searchInput.value)"
+          placeholder="Search your tasks..."
+          class="w-full bg-slate-900/80 border border-slate-800 focus:border-indigo-500 text-sm text-slate-200 placeholder-slate-500 rounded-xl px-4 py-2.5 outline-none transition"
+        />
+        @if (searchQuery().length > 0) {
+          <button
+            (click)="searchQuery.set('')"
+            class="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-white"
+          >
+            &#x2715;
+          </button>
+        }
+      </div>
+
+      <!-- Status Filters Tabs -->
+      <div class="flex items-center gap-1 p-1 bg-slate-900/90 border border-slate-800 rounded-xl">
+        <button
+          (click)="filterStatus.set('all')"
+          class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all"
+          [class.bg-indigo-600]="filterStatus() === 'all'"
+          [class.text-white]="filterStatus() === 'all'"
+          [class.text-slate-400]="filterStatus() !== 'all'"
+        >
+          All
+        </button>
+        <button
+          (click)="filterStatus.set('active')"
+          class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all"
+          [class.bg-indigo-600]="filterStatus() === 'active'"
+          [class.text-white]="filterStatus() === 'active'"
+          [class.text-slate-400]="filterStatus() !== 'active'"
+        >
+          Active
+        </button>
+        <button
+          (click)="filterStatus.set('completed')"
+          class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all"
+          [class.bg-indigo-600]="filterStatus() === 'completed'"
+          [class.text-white]="filterStatus() === 'completed'"
+          [class.text-slate-400]="filterStatus() !== 'completed'"
+        >
+          Completed
+        </button>
+      </div>
+    </section>
+
+    <!-- Task List -->
+    <main class="mt-4 space-y-2.5">
+      @if (filteredTasks().length === 0) {
+        <!-- Empty State -->
+        <div class="p-12 text-center rounded-2xl bg-slate-900/40 border border-slate-800/80">
+          <div class="w-12 h-12 mx-auto rounded-full bg-slate-800/80 flex items-center justify-center text-slate-400 text-xl mb-3">
+            &#9786;
+          </div>
+          <h3 class="text-base font-semibold text-slate-200">No tasks found</h3>
+          <p class="text-xs text-slate-500 mt-1">
+            @if (searchQuery().length > 0) {
+              No tasks matched "{{ searchQuery() }}". Try clearing the search.
+            } @else {
+              No tasks match this filter. Create a new one above or reset demo data!
+            }
+          </p>
+        </div>
+      } @else {
+        <!-- Dynamic Angular @for loop -->
+        @for (task of filteredTasks(); track task.id) {
+          <div
+            class="group p-4 rounded-xl bg-slate-900/70 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700/80 transition-all duration-200 shadow-sm flex items-center justify-between gap-3"
+            [class.opacity-60]="task.completed"
+          >
+            <!-- Checkbox & Content -->
+            <div class="flex items-center gap-3.5 flex-1 min-w-0">
+              <button
+                type="button"
+                (click)="toggleTask(task.id)"
+                class="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors"
+                [class.bg-emerald-500]="task.completed"
+                [class.border-emerald-500]="task.completed"
+                [class.border-slate-600]="!task.completed"
+                [class.hover:border-indigo-400]="!task.completed"
+              >
+                @if (task.completed) {
+                  <span class="text-white text-xs font-bold leading-none">&#10003;</span>
+                }
+              </button>
+
+              <div class="flex-1 min-w-0">
+                <p
+                  class="text-sm font-medium text-slate-200 transition-all truncate"
+                  [class.line-through]="task.completed"
+                  [class.text-slate-500]="task.completed"
+                >
+                  {{ task.title }}
+                </p>
+
+                <div class="flex items-center gap-2 mt-1">
+                  <!-- Category Badge -->
+                  <span class="inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700/60">
+                    {{ task.category }}
+                  </span>
+
+                  <!-- Priority Indicator -->
+                  <span
+                    class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md"
+                    [class.bg-rose-950/60]="task.priority === 'high'"
+                    [class.text-rose-400]="task.priority === 'high'"
+                    [class.border]="task.priority === 'high'"
+                    [class.border-rose-900/60]="task.priority === 'high'"
+                    [class.bg-amber-950/60]="task.priority === 'medium'"
+                    [class.text-amber-400]="task.priority === 'medium'"
+                    [class.border-amber-900/60]="task.priority === 'medium'"
+                    [class.bg-slate-800]="task.priority === 'low'"
+                    [class.text-slate-400]="task.priority === 'low'"
+                  >
+                    <span
+                      class="w-1.5 h-1.5 rounded-full"
+                      [class.bg-rose-400]="task.priority === 'high'"
+                      [class.bg-amber-400]="task.priority === 'medium'"
+                      [class.bg-slate-400]="task.priority === 'low'"
+                    ></span>
+                    {{ task.priority | uppercase }}
+                  </span>
+
+                  <span class="text-[10px] text-slate-500">{{ task.createdAt }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delete Action -->
+            <button
+              (click)="deleteTask(task.id)"
+              class="opacity-0 group-hover:opacity-100 p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-950/30 rounded-lg transition-all text-xs"
+              title="Delete task"
+            >
+              &#128465;
+            </button>
+          </div>
+        }
+      }
+    </main>
+
+    <!-- Learning Callout: React vs Angular Parallel in this Code -->
+    <footer class="mt-14 p-5 rounded-2xl bg-indigo-950/20 border border-indigo-500/20 text-xs text-slate-400 space-y-2">
+      <div class="flex items-center gap-2 text-indigo-300 font-semibold text-sm">
+        <span>&#9889;</span> MERN Quick-Check: What is happening in this component?
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-slate-300">
+        <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span class="font-mono text-pink-400">tasks = signal(...)</span>
+          <p class="text-slate-400 text-[11px] mt-0.5">Like React's <code class="text-slate-200">useState([])</code>. Updated with <code class="text-slate-200">.update()</code> or <code class="text-slate-200">.set()</code>.</p>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span class="font-mono text-indigo-400">filteredTasks = computed(...)</span>
+          <p class="text-slate-400 text-[11px] mt-0.5">Like React's <code class="text-slate-200">useMemo</code>. Automatically re-runs when its dependency signals change.</p>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span class="font-mono text-emerald-400">&#64;if / &#64;for (track task.id)</span>
+          <p class="text-slate-400 text-[11px] mt-0.5">Modern control flow syntax (replaces <code class="text-slate-200">&#123;list.map(t =&gt; &lt;... key=&#123;t.id&#125;&gt;)&#125;</code>).</p>
+        </div>
+        <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+          <span class="font-mono text-amber-400">effect(...) in constructor</span>
+          <p class="text-slate-400 text-[11px] mt-0.5">Like React's <code class="text-slate-200">useEffect</code>. Automatically persists items into localStorage whenever changed.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Angular Router Outlet for Page Routes -->
+    <router-outlet />
+  </div>
+</div>
