@@ -1,0 +1,181 @@
+<div class="min-h-screen bg-[#0b0f19] text-slate-100 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-indigo-300">
+  
+  <!-- ================= GLOBAL NAVBAR ================= -->
+  <app-navbar />
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-8">
+
+    <!-- === HERO BANNER: Day 3 Architecture Showcase === -->
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950/80 via-slate-900/90 to-slate-900 border border-indigo-900/40 p-6 sm:p-8 shadow-2xl backdrop-blur-md">
+      
+      <!-- Subtle Background Glow -->
+      <div class="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div class="max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold mb-3">
+            <span>⚡ Day 3 Angular Mastery</span>
+            <span>•</span>
+            <span>Zero Prop Drilling</span>
+          </div>
+
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+            Enterprise State Management with <span class="bg-gradient-to-r from-indigo-400 via-sky-300 to-cyan-400 bg-clip-text text-transparent">Signals & Services</span>
+          </h1>
+
+          <p class="text-sm text-slate-400 mt-2.5 leading-relaxed">
+            Experience the <strong>Service-with-a-Signal</strong> pattern. Notice how adding any product immediately updates the Navbar bag count, triggers the Toast Service, and calculates taxes/discounts—without passing a single event up or down component trees.
+          </p>
+        </div>
+
+        <!-- Quick Toast Notification Testing Hub -->
+        <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col gap-2.5 shrink-0">
+          <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            Test Global Toast Service
+          </span>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button
+              type="button"
+              (click)="testToastNotification('success')"
+              class="px-3 py-1.5 rounded-lg bg-emerald-950/50 hover:bg-emerald-900/50 text-emerald-300 border border-emerald-800/50 font-medium transition-colors cursor-pointer"
+            >
+              + Success Toast
+            </button>
+            <button
+              type="button"
+              (click)="testToastNotification('warning')"
+              class="px-3 py-1.5 rounded-lg bg-amber-950/50 hover:bg-amber-900/50 text-amber-300 border border-amber-800/50 font-medium transition-colors cursor-pointer"
+            >
+              ! Warning Toast
+            </button>
+            <button
+              type="button"
+              (click)="testToastNotification('info')"
+              class="px-3 py-1.5 rounded-lg bg-sky-950/50 hover:bg-sky-900/50 text-sky-300 border border-sky-800/50 font-medium transition-colors cursor-pointer"
+            >
+              ℹ Info Toast
+            </button>
+            <button
+              type="button"
+              (click)="testToastNotification('error')"
+              class="px-3 py-1.5 rounded-lg bg-rose-950/50 hover:bg-rose-900/50 text-rose-300 border border-rose-800/50 font-medium transition-colors cursor-pointer"
+            >
+              ✕ Error Toast
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- === CATALOG CONTROLS: Category Pills & Sort === -->
+    <section class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      
+      <!-- Category Filter Pills -->
+      <div class="flex flex-wrap items-center gap-2">
+        @for (cat of productService.categories; track cat.id) {
+          <button
+            type="button"
+            (click)="selectCategory(cat.id)"
+            class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer border"
+            [class.bg-indigo-600]="productService.selectedCategory() === cat.id"
+            [class.text-white]="productService.selectedCategory() === cat.id"
+            [class.border-indigo-500]="productService.selectedCategory() === cat.id"
+            [class.shadow-md]="productService.selectedCategory() === cat.id"
+            [class.shadow-indigo-500/20]="productService.selectedCategory() === cat.id"
+            [class.bg-slate-900/60]="productService.selectedCategory() !== cat.id"
+            [class.text-slate-400]="productService.selectedCategory() !== cat.id"
+            [class.border-slate-800]="productService.selectedCategory() !== cat.id"
+            [class.hover:text-slate-200]="productService.selectedCategory() !== cat.id"
+            [class.hover:border-slate-700]="productService.selectedCategory() !== cat.id"
+          >
+            {{ cat.label }}
+          </button>
+        }
+      </div>
+
+      <!-- Sorting Selector -->
+      <div class="flex items-center gap-2 text-xs text-slate-400 shrink-0">
+        <span>Sort by:</span>
+        <select
+          [value]="productService.sortBy()"
+          (change)="setSort($event)"
+          class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 cursor-pointer"
+        >
+          <option value="featured">Featured First</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="rating">Top Customer Rated</option>
+        </select>
+      </div>
+
+    </section>
+
+    <!-- === PRODUCT GRID === -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      @for (item of productService.filteredProducts(); track item.id) {
+        <app-product-card [product]="item" />
+      } @empty {
+        <div class="col-span-full flex flex-col items-center justify-center p-12 text-center bg-slate-900/40 border border-slate-800 rounded-2xl">
+          <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-500 mb-3">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-300">No matching products found</h3>
+          <p class="text-xs text-slate-500 mt-1">Try adjusting your search query or switching categories.</p>
+        </div>
+      }
+    </section>
+
+    <!-- === DAY 3 EDUCATIONAL REFERENCE (Best Practices Comparison) === -->
+    <section class="p-6 bg-slate-900/50 border border-slate-800/80 rounded-3xl">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
+        <h3 class="text-sm font-bold text-white tracking-wide">Day 3 Architectural Takeaways: Clean Angular Best Practices</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs">
+        
+        <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80">
+          <p class="font-bold text-indigo-300 mb-1.5">1. Functional inject() vs Constructor</p>
+          <code class="text-[11px] text-slate-400 font-mono block">private cartService = inject(CartService);</code>
+          <p class="text-slate-400 mt-2 leading-relaxed">
+            Eliminates verbose constructor injection, works seamlessly in inheritance, and allows injecting tokens and DestroyRef anywhere.
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80">
+          <p class="font-bold text-indigo-300 mb-1.5">2. State Encapsulation with asReadonly()</p>
+          <code class="text-[11px] text-slate-400 font-mono block">#items = signal&lt;CartItem[]&gt;([])</code>
+          <code class="text-[11px] text-slate-400 font-mono block mt-1">readonly items = this.#items.asReadonly()</code>
+          <p class="text-slate-400 mt-2 leading-relaxed">
+            Components can safely react to state without being able to arbitrarily mutate internal store arrays directly.
+          </p>
+        </div>
+
+        <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800/80">
+          <p class="font-bold text-indigo-300 mb-1.5">3. DestroyRef for Automatic Cleanup</p>
+          <code class="text-[11px] text-slate-400 font-mono block">destroyRef = inject(DestroyRef);</code>
+          <code class="text-[11px] text-slate-400 font-mono block mt-1">this.destroyRef.onDestroy(() => ...)</code>
+          <p class="text-slate-400 mt-2 leading-relaxed">
+            Replaces boilerplate ngOnDestroy hooks and manual Subject takeUntil pipes with native lifecycle tear-down.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= GLOBAL CART SLIDE-OVER DRAWER ================= -->
+  <app-cart-drawer />
+
+  <!-- ================= GLOBAL FLOATING TOAST NOTIFICATIONS ================= -->
+  <app-toast-container />
+
+</div>
