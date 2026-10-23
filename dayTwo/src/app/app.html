@@ -1,0 +1,394 @@
+<div class="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans selection:bg-indigo-500/30 selection:text-indigo-300">
+  
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="border-b border-slate-800/80 bg-slate-950/60 backdrop-blur-md sticky top-0 z-30">
+    <div class="max-w-[1700px] mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo & Day Badge -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-400 p-0.5 shadow-lg shadow-indigo-500/20 flex items-center justify-center">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center font-black text-indigo-400 tracking-tighter text-lg">
+            D2
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold tracking-tight text-white">DevSprint Board</h1>
+            <app-badge variant="purple" size="sm">Day 2 • Modern Architecture</app-badge>
+          </div>
+          <p class="text-xs text-slate-400">Signals, Standalone Components, Slot Projection & Pipes</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions & Reset -->
+      <div class="flex items-center gap-3">
+        <button
+          type="button"
+          (click)="resetDemoData()"
+          class="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border border-slate-800 rounded-lg transition-colors cursor-pointer"
+          title="Reset to factory sample tasks"
+        >
+          Reset Demo Data
+        </button>
+
+        <button
+          type="button"
+          (click)="openCreateModal('todo')"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-medium text-xs sm:text-sm rounded-xl shadow-lg shadow-indigo-500/25 transition-all transform active:scale-95 cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Create Task</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-[1700px] w-full mx-auto p-4 sm:p-6 flex flex-col gap-6">
+
+    <!-- === METRICS DASHBOARD (Computed Signals) === -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      
+      <!-- Total Tasks -->
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Total Backlog</p>
+          <h2 class="text-2xl font-bold text-white mt-1">{{ totalCount() }}</h2>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Completion Velocity -->
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-slate-400">Sprint Completion</p>
+            <h2 class="text-2xl font-bold text-white mt-1">{{ completionRate() }}%</h2>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+        <!-- Progress bar -->
+        <div class="w-full h-1.5 bg-slate-800 rounded-full mt-2 overflow-hidden">
+          <div class="h-full bg-emerald-400 transition-all duration-500" [style.width.%]="completionRate()"></div>
+        </div>
+      </div>
+
+      <!-- Urgent Blockers -->
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Urgent Active</p>
+          <div class="flex items-center gap-2 mt-1">
+            <h2 class="text-2xl font-bold text-white">{{ urgentCount() }}</h2>
+            @if (urgentCount() > 0) {
+              <app-badge variant="danger" size="sm">Action Req</app-badge>
+            }
+          </div>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Estimated Effort Hours -->
+      <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Total Workload</p>
+          <h2 class="text-2xl font-bold text-white mt-1 font-mono">{{ totalEstimatedHours() }} <span class="text-sm font-sans font-normal text-slate-400">hrs</span></h2>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- === FILTER & SEARCH TOOLBAR === -->
+    <section class="flex flex-wrap items-center justify-between gap-3 bg-slate-900/40 border border-slate-800/80 p-3 rounded-2xl backdrop-blur-sm">
+      
+      <!-- Search Box with Signal Binding -->
+      <div class="relative flex-1 min-w-[240px] max-w-md">
+        <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Filter by title, desc, or #tag..."
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+          class="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+        />
+      </div>
+
+      <!-- Priority & Assignee Dropdowns -->
+      <div class="flex items-center gap-2.5">
+        
+        <!-- Priority Filter -->
+        <div class="flex items-center gap-1.5 text-xs text-slate-400">
+          <span>Priority:</span>
+          <select
+            [value]="priorityFilter()"
+            (change)="priorityFilter.set($any($event.target).value)"
+            class="bg-slate-950/80 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 cursor-pointer"
+          >
+            <option value="all">All Priorities</option>
+            <option value="urgent">Urgent</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+
+        <!-- Assignee Filter -->
+        <div class="flex items-center gap-1.5 text-xs text-slate-400">
+          <span>Assignee:</span>
+          <select
+            [value]="assigneeFilter()"
+            (change)="assigneeFilter.set($any($event.target).value)"
+            class="bg-slate-950/80 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 cursor-pointer"
+          >
+            <option value="all">All Members</option>
+            @for (m of teamMembers; track m.name) {
+              <option [value]="m.name">{{ m.name }}</option>
+            }
+          </select>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- === KANBAN LANES (Reusable Standalone Columns) === -->
+    <section class="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+      
+      <!-- Lane 1: To Do -->
+      <app-kanban-column
+        title="To Do"
+        status="todo"
+        [tasks]="todoTasks()"
+        (taskStatusChange)="handleStatusChange($event)"
+        (taskDelete)="handleDeleteTask($event)"
+        (taskEdit)="openEditModal($event)"
+        (addTask)="openCreateModal($event)"
+      />
+
+      <!-- Lane 2: In Progress -->
+      <app-kanban-column
+        title="In Progress"
+        status="in_progress"
+        [tasks]="inProgressTasks()"
+        (taskStatusChange)="handleStatusChange($event)"
+        (taskDelete)="handleDeleteTask($event)"
+        (taskEdit)="openEditModal($event)"
+        (addTask)="openCreateModal($event)"
+      />
+
+      <!-- Lane 3: Review -->
+      <app-kanban-column
+        title="In Review"
+        status="review"
+        [tasks]="reviewTasks()"
+        (taskStatusChange)="handleStatusChange($event)"
+        (taskDelete)="handleDeleteTask($event)"
+        (taskEdit)="openEditModal($event)"
+        (addTask)="openCreateModal($event)"
+      />
+
+      <!-- Lane 4: Done -->
+      <app-kanban-column
+        title="Done"
+        status="done"
+        [tasks]="doneTasks()"
+        (taskStatusChange)="handleStatusChange($event)"
+        (taskDelete)="handleDeleteTask($event)"
+        (taskEdit)="openEditModal($event)"
+        (addTask)="openCreateModal($event)"
+      />
+
+    </section>
+
+    <!-- === DAY 2 CONCEPTS SUMMARY CARD (Education Panel) === -->
+    <section class="mt-4 p-5 bg-slate-900/50 border border-slate-800/80 rounded-2xl">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+        <h3 class="text-sm font-bold text-slate-200">Day 2 Architectural Concepts Learned in this Project:</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        
+        <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800/60">
+          <p class="font-bold text-indigo-300 mb-1">1. Signal Inputs & Outputs</p>
+          <code class="text-[11px] text-slate-400 font-mono block">task = input.required&lt;Task&gt;()</code>
+          <code class="text-[11px] text-slate-400 font-mono block mt-1">statusChange = output&lt;Status&gt;()</code>
+          <p class="text-slate-400 mt-2">Replaces legacy &#64;Input() and &#64;Output() EventEmitter with native signal primitives.</p>
+        </div>
+
+        <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800/60">
+          <p class="font-bold text-indigo-300 mb-1">2. Two-Way Signal Binding</p>
+          <code class="text-[11px] text-slate-400 font-mono block">isOpen = model&lt;boolean&gt;(false)</code>
+          <code class="text-[11px] text-slate-400 font-mono block mt-1">&lt;app-modal [(isOpen)]="isModalOpen" /&gt;</code>
+          <p class="text-slate-400 mt-2">Modern two-way binding without needing cumbersome separate events.</p>
+        </div>
+
+        <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800/60">
+          <p class="font-bold text-indigo-300 mb-1">3. Multi-Slot &lt;ng-content&gt; & Pipes</p>
+          <code class="text-[11px] text-slate-400 font-mono block">&lt;ng-content select="[modal-title]" /&gt;</code>
+          <code ngNonBindable class="text-[11px] text-slate-400 font-mono block mt-1">{{ task.createdAt | relativeTime }}</code>
+          <p class="text-slate-400 mt-2">Slot projection inside Modal, plus a custom standalone RelativeTime pipe.</p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= REUSABLE MODAL (Demonstrating [(isOpen)] and Slots) ================= -->
+  <app-modal [(isOpen)]="isModalOpen">
+    
+    <!-- Named Slot 1: modal-title -->
+    <span modal-title>
+      {{ editingTaskId() ? 'Edit Task Details' : 'Create New Task' }}
+    </span>
+
+    <!-- Named Slot 2: modal-subtitle -->
+    <span modal-subtitle>
+      {{ editingTaskId() ? 'Update existing sprint item' : 'Add an item to the sprint backlog' }}
+    </span>
+
+    <!-- Default Slot: Form Body -->
+    <div class="space-y-4 text-xs sm:text-sm">
+      
+      <!-- Title input -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Task Title *</label>
+        <input
+          type="text"
+          placeholder="e.g. Implement signal input bindings"
+          [value]="formTitle()"
+          (input)="formTitle.set($any($event.target).value)"
+          class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+        />
+      </div>
+
+      <!-- Description textarea -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Description</label>
+        <textarea
+          rows="3"
+          placeholder="Brief details about the task requirements..."
+          [value]="formDescription()"
+          (input)="formDescription.set($any($event.target).value)"
+          class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
+        ></textarea>
+      </div>
+
+      <!-- Lane Status & Priority Grid -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Initial Status</label>
+          <select
+            [value]="formStatus()"
+            (change)="formStatus.set($any($event.target).value)"
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500"
+          >
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="review">In Review</option>
+            <option value="done">Completed</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Priority</label>
+          <select
+            [value]="formPriority()"
+            (change)="formPriority.set($any($event.target).value)"
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Assignee & Estimate Hours -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Assignee</label>
+          <select
+            [value]="formAssigneeName()"
+            (change)="formAssigneeName.set($any($event.target).value)"
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500"
+          >
+            @for (member of teamMembers; track member.name) {
+              <option [value]="member.name">{{ member.name }} ({{ member.role }})</option>
+            }
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Estimate (Hours)</label>
+          <input
+            type="number"
+            min="1"
+            max="100"
+            [value]="formEstimate()"
+            (input)="formEstimate.set($any($event.target).value)"
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+      </div>
+
+      <!-- Tags comma separated -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Tags (Comma-separated)</label>
+        <input
+          type="text"
+          placeholder="e.g. angular, signals, styling"
+          [value]="formTagsString()"
+          (input)="formTagsString.set($any($event.target).value)"
+          class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+        />
+      </div>
+
+    </div>
+
+    <!-- Named Slot 3: modal-actions -->
+    <div modal-actions class="flex items-center gap-2">
+      <button
+        type="button"
+        (click)="isModalOpen.set(false)"
+        class="px-4 py-2 text-xs sm:text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        (click)="saveTask()"
+        [disabled]="!formTitle().trim()"
+        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium text-xs sm:text-sm rounded-xl shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
+      >
+        {{ editingTaskId() ? 'Save Changes' : 'Create Task' }}
+      </button>
+    </div>
+
+  </app-modal>
+
+</div>
