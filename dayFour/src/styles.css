@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+@layer base {
+  body {
+    font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #faf8f5;
+    color: #292524;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+/* Eye-comforting warm scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #f5f2eb;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6d0c4;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b8b0a0;
+}

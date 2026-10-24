@@ -1,0 +1,525 @@
+<div class="min-h-screen bg-[#faf8f5] text-stone-800 flex flex-col font-sans selection:bg-amber-200 selection:text-amber-900">
+  
+  <!-- ================= TOP HEADER BAR ================= -->
+  <header class="border-b border-stone-200/90 bg-white/85 backdrop-blur-md sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo & Day Badge -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-amber-600 to-stone-800 p-0.5 shadow-md shadow-amber-500/20 flex items-center justify-center">
+          <div class="w-full h-full bg-[#fbf9f5] rounded-[10px] flex items-center justify-center font-black text-amber-800 text-lg">
+            D4
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-base font-bold tracking-tight text-stone-900">DevConnect</span>
+            <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+              Typed Forms & Arrays
+            </span>
+          </div>
+          <p class="text-xs text-stone-500">Strictly-Typed Forms, Cross-Field & Async Validators</p>
+        </div>
+      </div>
+
+      <!-- Quick Demo Interactive Actions -->
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          (click)="fillTakenUsername()"
+          class="px-2.5 py-1.5 text-xs text-amber-900 bg-amber-100/70 hover:bg-amber-200/80 border border-amber-300 rounded-lg transition-colors cursor-pointer font-medium"
+          title="Fills username with 'admin' to trigger async conflict"
+        >
+          ⚡ Test Taken Username
+        </button>
+
+        <button
+          type="button"
+          (click)="fillMismatchedPassword()"
+          class="px-2.5 py-1.5 text-xs text-rose-900 bg-rose-100/70 hover:bg-rose-200/80 border border-rose-300 rounded-lg transition-colors cursor-pointer font-medium"
+          title="Fills mismatched password to test cross-field validator"
+        >
+          ⚡ Test Password Mismatch
+        </button>
+
+        <button
+          type="button"
+          (click)="fillDemoData()"
+          class="px-3 py-1.5 text-xs text-white bg-stone-800 hover:bg-stone-900 rounded-lg transition-colors cursor-pointer font-medium shadow-xs"
+        >
+          Auto Fill Valid
+        </button>
+
+        <button
+          type="button"
+          (click)="resetForm()"
+          class="px-2.5 py-1.5 text-xs text-stone-600 hover:text-stone-900 bg-white border border-stone-200 rounded-lg transition-colors cursor-pointer hover:bg-stone-50"
+        >
+          Reset
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-8">
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- ================= LEFT COLUMN: THE REACTIVE FORM ================= -->
+      <div class="lg:col-span-7 flex flex-col gap-6">
+        
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+          
+          <!-- SECTION 1: Credentials & Identity -->
+          <div class="p-6 rounded-2xl bg-white border border-stone-200/90 shadow-sm shadow-stone-200/30 space-y-4">
+            <div class="flex items-center gap-2 pb-3 border-b border-stone-100">
+              <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center text-xs font-bold font-mono">1</span>
+              <h2 class="text-sm font-bold text-stone-900 tracking-wide">Developer Credentials & Handle</h2>
+            </div>
+
+            <!-- Full Name -->
+            <div>
+              <label class="block text-xs font-semibold text-stone-700 mb-1">Full Legal Name *</label>
+              <input
+                type="text"
+                formControlName="fullName"
+                placeholder="e.g. Vishal Vishwakarma"
+                class="w-full bg-[#fcfbf9] border border-stone-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-500/15 transition-all"
+                [class.border-rose-400]="form.controls.fullName.invalid && form.controls.fullName.touched"
+              />
+              <app-form-error [control]="form.controls.fullName" fieldName="Full name" />
+            </div>
+
+            <!-- Username with Live Async Availability Checker -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-semibold text-stone-700">
+                  Unique Username * (Async Validated)
+                </label>
+                @if (form.controls.username.status === 'PENDING') {
+                  <span class="text-[11px] text-amber-700 font-medium flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    Checking availability...
+                  </span>
+                } @else if (form.controls.username.valid && form.controls.username.value) {
+                  <span class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                    ✓ Available
+                  </span>
+                }
+              </div>
+
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 font-mono text-xs">&#64;</span>
+                <input
+                  type="text"
+                  formControlName="username"
+                  placeholder="e.g. vishal_dev"
+                  class="w-full bg-[#fcfbf9] border border-stone-200 rounded-xl pl-8 pr-3.5 py-2 text-xs sm:text-sm text-stone-900 font-mono placeholder-stone-400 focus:bg-white focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-500/15 transition-all"
+                  [class.border-rose-400]="form.controls.username.invalid && form.controls.username.touched"
+                  [class.border-emerald-400]="form.controls.username.valid && form.controls.username.value"
+                />
+              </div>
+              <p class="text-[11px] text-stone-500 mt-1">Try "admin", "vishal", or "angular" to test async taken usernames.</p>
+              <app-form-error [control]="form.controls.username" fieldName="Username" />
+            </div>
+
+            <!-- Email Address -->
+            <div>
+              <label class="block text-xs font-semibold text-stone-700 mb-1">Work Email *</label>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="name@company.io"
+                class="w-full bg-[#fcfbf9] border border-stone-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-500/15 transition-all"
+                [class.border-rose-400]="form.controls.email.invalid && form.controls.email.touched"
+              />
+              <app-form-error [control]="form.controls.email" fieldName="Email address" />
+            </div>
+
+            <!-- Password & Confirm Password Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-stone-700 mb-1">Password *</label>
+                <input
+                  type="password"
+                  formControlName="password"
+                  placeholder="Min 8 chars, 1 uppercase, 1 number"
+                  class="w-full bg-[#fcfbf9] border border-stone-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-500/15 transition-all"
+                  [class.border-rose-400]="form.controls.password.invalid && form.controls.password.touched"
+                />
+                <app-form-error [control]="form.controls.password" fieldName="Password" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-stone-700 mb-1">Confirm Password *</label>
+                <input
+                  type="password"
+                  formControlName="confirmPassword"
+                  placeholder="Repeat exact password"
+                  class="w-full bg-[#fcfbf9] border border-stone-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-500/15 transition-all"
+                  [class.border-rose-400]="(form.controls.confirmPassword.invalid || form.errors?.['passwordMismatch']) && form.controls.confirmPassword.touched"
+                />
+                <app-form-error [control]="form.controls.confirmPassword" fieldName="Confirm Password" />
+                @if (form.errors?.['passwordMismatch'] && form.controls.confirmPassword.touched) {
+                  <div class="flex items-center gap-1.5 text-xs text-rose-600 font-medium mt-1.5">
+                    <svg class="w-3.5 h-3.5 shrink-0 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Cross-field validator: Passwords do not match.</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+          </div>
+
+          <!-- SECTION 2: Role, Rates & Experience -->
+          <div class="p-6 rounded-2xl bg-white border border-stone-200/90 shadow-sm shadow-stone-200/30 space-y-4">
+            <div class="flex items-center gap-2 pb-3 border-b border-stone-100">
+              <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center text-xs font-bold font-mono">2</span>
+              <h2 class="text-sm font-bold text-stone-900 tracking-wide">Professional Role & Rates</h2>
+            </div>
+
+            <!-- Role Selector -->
+            <div>
+              <label class="block text-xs font-semibold text-stone-700 mb-1">Primary Role *</label>
+              <select
+                formControlName="role"
+                class="w-full bg-[#fcfbf9] border border-stone-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-stone-900 focus:bg-white focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-500/15 cursor-pointer"
+              >
+                @for (r of availableRoles; track r) {
+                  <option [value]="r">{{ r }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- Experience & Hourly Rate -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-stone-700 mb-1">Years of Experience (0-40) *</label>
+                <input
+                  type="number"
+                  formControlName="experienceYears"
+                  min="0"
+                  max="40"
+                  class="w-full bg-[#fcfbf9] border border-stone-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-stone-900 font-mono focus:bg-white focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-500/15"
+                />
+                <app-form-error [control]="form.controls.experienceYears" fieldName="Experience" />
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="block text-xs font-semibold text-stone-700">Hourly Rate (&dollar;) *</label>
+                  <span class="text-xs font-mono font-bold text-amber-800">&dollar;{{ form.controls.hourlyRate.value }}/hr</span>
+                </div>
+                <input
+                  type="range"
+                  formControlName="hourlyRate"
+                  min="15"
+                  max="500"
+                  step="5"
+                  class="w-full accent-amber-600 cursor-pointer"
+                />
+                <app-form-error [control]="form.controls.hourlyRate" fieldName="Hourly rate" />
+              </div>
+            </div>
+
+            <!-- Bio -->
+            <div>
+              <label class="block text-xs font-semibold text-stone-700 mb-1">Developer Bio</label>
+              <textarea
+                formControlName="bio"
+                rows="2"
+                placeholder="Short statement regarding your engineering philosophy..."
+                class="w-full bg-[#fcfbf9] border border-stone-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:bg-white focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-500/15 resize-none"
+              ></textarea>
+              <div class="flex justify-between text-[11px] text-stone-500 mt-1">
+                <span>Maximum 200 characters</span>
+                <span class="font-mono">{{ form.controls.bio.value.length }}/200</span>
+              </div>
+              <app-form-error [control]="form.controls.bio" fieldName="Bio" />
+            </div>
+
+          </div>
+
+          <!-- SECTION 3: Dynamic Tech Stack (FormArray) -->
+          <div class="p-6 rounded-2xl bg-white border border-stone-200/90 shadow-sm shadow-stone-200/30 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center text-xs font-bold font-mono">3</span>
+                <div>
+                  <h2 class="text-sm font-bold text-stone-900 tracking-wide">Dynamic Tech Stack (FormArray)</h2>
+                  <p class="text-[11px] text-stone-500">Add or remove skills dynamically with strict typing</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                (click)="addSkill()"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-2xs"
+              >
+                <span>+ Add Skill</span>
+              </button>
+            </div>
+
+            <!-- Skills List with FormArray binding -->
+            <div formArrayName="skills" class="space-y-3">
+              @for (skillGroup of skillsArray.controls; track $index) {
+                <div [formGroupName]="$index" class="flex items-center gap-3 p-3 rounded-xl bg-[#faf8f5] border border-stone-200 group">
+                  
+                  <span class="text-xs font-mono text-stone-400 w-5 text-center">{{ $index + 1 }}</span>
+
+                  <!-- Skill Name -->
+                  <div class="flex-1">
+                    <input
+                      type="text"
+                      formControlName="name"
+                      placeholder="e.g. RxJS, GraphQL, Docker..."
+                      class="w-full bg-white border border-stone-200 rounded-lg px-3 py-1.5 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-500/20"
+                    />
+                  </div>
+
+                  <!-- Level Select -->
+                  <div class="w-32">
+                    <select
+                      formControlName="level"
+                      class="w-full bg-white border border-stone-200 rounded-lg px-2.5 py-1.5 text-xs text-stone-700 focus:outline-none focus:border-amber-600 cursor-pointer"
+                    >
+                      <option value="junior">Junior</option>
+                      <option value="mid">Mid-Level</option>
+                      <option value="senior">Senior</option>
+                      <option value="lead">Lead</option>
+                    </select>
+                  </div>
+
+                  <!-- Delete Skill Row Button -->
+                  <button
+                    type="button"
+                    (click)="removeSkill($index)"
+                    [disabled]="skillsArray.length <= 1"
+                    class="p-1.5 text-stone-400 hover:text-rose-600 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg hover:bg-stone-200/60 transition-colors cursor-pointer"
+                    title="Remove skill"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+
+                </div>
+              }
+            </div>
+
+          </div>
+
+          <!-- SECTION 4: Availability & Terms -->
+          <div class="p-6 rounded-2xl bg-white border border-stone-200/90 shadow-sm shadow-stone-200/30 space-y-4">
+            
+            <!-- Available for Hire Toggle -->
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                formControlName="availableForHire"
+                class="w-4 h-4 rounded text-amber-600 bg-stone-50 border-stone-300 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-amber-600"
+              />
+              <span class="text-xs text-stone-700">
+                Immediately available for contract or full-time opportunities
+              </span>
+            </label>
+
+            <!-- Terms Confirmation -->
+            <div>
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="agreeTerms"
+                  class="w-4 h-4 rounded text-amber-600 bg-stone-50 border-stone-300 focus:ring-0 focus:ring-offset-0 cursor-pointer accent-amber-600"
+                />
+                <span class="text-xs text-stone-700">
+                  I certify that all technical skills and credentials provided are accurate *
+                </span>
+              </label>
+              <app-form-error [control]="form.controls.agreeTerms" fieldName="Terms agreement" />
+            </div>
+
+          </div>
+
+          <!-- FORM SUBMIT BUTTON -->
+          <button
+            type="submit"
+            [disabled]="form.invalid || form.pending"
+            class="w-full py-3.5 bg-gradient-to-r from-amber-600 via-amber-700 to-stone-800 hover:from-amber-700 hover:to-stone-900 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-sm rounded-2xl shadow-lg shadow-amber-700/20 transition-all transform active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+          >
+            @if (form.pending) {
+              <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span>Validating with remote servers...</span>
+            } @else {
+              <span>Submit & Provision Verified Profile</span>
+              <span>→</span>
+            }
+          </button>
+
+        </form>
+
+      </div>
+
+      <!-- ================= RIGHT COLUMN: LIVE CARD & FORM DIAGNOSTICS ================= -->
+      <div class="lg:col-span-5 flex flex-col gap-6 sticky top-24">
+        
+        <!-- Live Developer ID Badge -->
+        <div>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-xs font-bold text-stone-500 uppercase tracking-wider">Live Signal Preview</span>
+            <span class="text-[11px] text-amber-800 font-mono font-medium">Connected via toSignal()</span>
+          </div>
+
+          <app-id-preview
+            [data]="liveFormValue()"
+            [isValid]="isFormValid()"
+            [isPending]="isFormPending()"
+          />
+        </div>
+
+        <!-- Real-time Form Diagnostics Monitor -->
+        <div class="p-5 rounded-2xl bg-white border border-stone-200/90 shadow-sm space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700">Form Tree Status Monitor</h3>
+            <span class="text-[10px] font-mono text-stone-400">FormGroup Inspector</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+            
+            <div class="p-2.5 rounded-xl bg-[#faf8f5] border border-stone-200 flex items-center justify-between">
+              <span class="text-stone-500">status:</span>
+              <span
+                class="font-bold uppercase"
+                [class.text-emerald-700]="form.status === 'VALID'"
+                [class.text-rose-600]="form.status === 'INVALID'"
+                [class.text-amber-700]="form.status === 'PENDING'"
+              >
+                {{ form.status }}
+              </span>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-[#faf8f5] border border-stone-200 flex items-center justify-between">
+              <span class="text-stone-500">pristine:</span>
+              <span [class.text-amber-800]="form.pristine" [class.text-stone-500]="!form.pristine">
+                {{ form.pristine }}
+              </span>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-[#faf8f5] border border-stone-200 flex items-center justify-between">
+              <span class="text-stone-500">dirty:</span>
+              <span [class.text-indigo-700]="form.dirty" [class.text-stone-500]="!form.dirty">
+                {{ form.dirty }}
+              </span>
+            </div>
+
+            <div class="p-2.5 rounded-xl bg-[#faf8f5] border border-stone-200 flex items-center justify-between">
+              <span class="text-stone-500">touched:</span>
+              <span [class.text-amber-700]="form.touched" [class.text-stone-500]="!form.touched">
+                {{ form.touched }}
+              </span>
+            </div>
+
+          </div>
+
+          <!-- Live Form Value JSON Explorer -->
+          <details class="text-xs">
+            <summary class="cursor-pointer text-stone-600 hover:text-stone-900 select-none py-1 font-semibold">
+              ▸ Inspect Raw form.getRawValue() JSON
+            </summary>
+            <pre class="mt-2 p-3 bg-stone-900 rounded-xl text-[11px] font-mono text-amber-200 overflow-x-auto max-h-48">{{ liveFormValue() | json }}</pre>
+          </details>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- === DAY 4 EDUCATIONAL REFERENCE PANEL === -->
+    <section class="p-6 bg-[#f5f2eb] border border-stone-200/90 rounded-3xl mt-4">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
+        <h3 class="text-sm font-bold text-stone-900 tracking-wide">Day 4 Architectural Concepts Mastered</h3>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+        
+        <div class="p-4 bg-white rounded-2xl border border-stone-200 shadow-2xs">
+          <p class="font-bold text-amber-900 mb-1">1. NonNullableFormBuilder</p>
+          <code class="text-[11px] text-stone-600 font-mono block">fb = inject(NonNullableFormBuilder)</code>
+          <p class="text-stone-600 mt-2 leading-relaxed">
+            Eliminates unwanted null types. When .reset() is called, controls revert to their initial typed values instead of null!
+          </p>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-stone-200 shadow-2xs">
+          <p class="font-bold text-amber-900 mb-1">2. Custom Async Validator</p>
+          <code class="text-[11px] text-stone-600 font-mono block">usernameAvailabilityValidator()</code>
+          <p class="text-stone-600 mt-2 leading-relaxed">
+            Simulates real-world API latency with timer(600) and triggers the PENDING status while validating against a remote database.
+          </p>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-stone-200 shadow-2xs">
+          <p class="font-bold text-amber-900 mb-1">3. Cross-Field Validator</p>
+          <code class="text-[11px] text-stone-600 font-mono block">passwordMatchValidator</code>
+          <p class="text-stone-600 mt-2 leading-relaxed">
+            Attached to the parent FormGroup to compare multiple sibling fields together (password === confirmPassword).
+          </p>
+        </div>
+
+        <div class="p-4 bg-white rounded-2xl border border-stone-200 shadow-2xs">
+          <p class="font-bold text-amber-900 mb-1">4. FormArray & toSignal()</p>
+          <code class="text-[11px] text-stone-600 font-mono block">skills: fb.array&lt;FormGroup&gt;([])</code>
+          <code class="text-[11px] text-stone-600 font-mono block mt-1">toSignal(form.valueChanges)</code>
+          <p class="text-stone-600 mt-2 leading-relaxed">
+            Dynamic row addition/deletion, plus instantaneous projection of form streams directly into Angular Signals!
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= SUBMISSION SUCCESS MODAL ================= -->
+  @if (isSubmitted()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-fade-in"
+      (click)="isSubmitted.set(false)"
+    >
+      <div
+        class="w-full max-w-lg bg-white border border-stone-200 rounded-2xl p-6 shadow-2xl space-y-4"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="w-12 h-12 rounded-2xl bg-emerald-100 border border-emerald-200 text-emerald-800 flex items-center justify-center text-xl font-bold">
+          ✓
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-stone-900">Profile Successfully Provisioned!</h3>
+          <p class="text-xs text-stone-500 mt-1">
+            All strictly-typed validations, custom cross-field checks, and async availability tests passed.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-stone-900 text-xs font-mono text-amber-200 max-h-56 overflow-y-auto">
+          <pre>{{ submittedProfile() | json }}</pre>
+        </div>
+
+        <button
+          type="button"
+          (click)="isSubmitted.set(false)"
+          class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs sm:text-sm rounded-xl transition-colors cursor-pointer shadow-md shadow-amber-600/20"
+        >
+          Close & Continue Editing
+        </button>
+      </div>
+    </div>
+  }
+
+</div>
